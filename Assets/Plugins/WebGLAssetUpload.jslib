@@ -1,12 +1,13 @@
 var WebGLAssetUpload = {
 
     UploadAsset: function(gameObjectNamePtr, uploadUrlPtr, filterPtr, maxBytesPtr, isMultiSelect) {
-        var CLOUDINARY_UPLOAD_PRESET = "asset_preset";
-        var PROGRESS_CHANGED_METHOD = "UploadProgressChanged";
-        var ASSET_UPLOADED_METHOD = "AssetUploaded";
-        var UPLOAD_FAILED_METHOD = "UploadFailed";
-        var FILE_TOO_BIG_METHOD = "FileTooBig";
-
+        const CLOUDINARY_UPLOAD_PRESET = "asset_preset";
+        const PROGRESS_CHANGED_METHOD = "UploadProgressChanged";
+        const ASSET_UPLOADED_METHOD = "AssetUploaded";
+        const UPLOAD_FAILED_METHOD = "UploadFailed";
+        const FILE_TOO_BIG_METHOD = "FileTooBig";
+        const FOLDER_NAME = 'WormTomb/Gallery';
+        
         gameObjectName = Pointer_stringify(gameObjectNamePtr);
         uploadUrl = Pointer_stringify(uploadUrlPtr);
         filter = Pointer_stringify(filterPtr);

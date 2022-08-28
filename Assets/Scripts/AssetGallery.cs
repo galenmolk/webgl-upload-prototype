@@ -1,39 +1,45 @@
 using System;
 using System.Collections;
+using Ebla.API;
+using MolkExtras;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class AssetGallery : MonoBehaviour
+public class AssetGallery : Singleton<AssetGallery>
 {
-    public static AssetGallery Instance;
-
     [SerializeField] private GameObject container;
     [SerializeField] private AssetSlot assetSlotPrefab;
     
-    public IEnumerator AddSprite(UploadData upload)
+    public void AddSprite(UploadData upload)
     {
-        yield return StartCoroutine(DownloadSprite(upload.url, sprite =>
-        {
-            var assetSlot = Instantiate(assetSlotPrefab, container.transform);
-            assetSlot.CreateSpriteSlot(upload.fileName, sprite);
-        }));
+        ApiUtils.CreateConfig(ApiUtils.GALLERY_ROUTE, upload);
+        StartCoroutine(CreateSpriteSlot(upload));
     }
 
     public IEnumerator AddAudioClip(UploadData upload)
     {
-        yield return StartCoroutine(DownloadAudioClip(upload.url, audioClip =>
+        yield return StartCoroutine(DownloadAudioClip(upload.Url, audioClip =>
         {
-            var assetSlot = Instantiate(assetSlotPrefab, container.transform);
-            assetSlot.CreateAudioClipSlot(upload.fileName, audioClip);
+            var assetSlot = GetSlot(upload);
+            assetSlot.CreateAudioClipSlot(upload.Filename, audioClip);
         }));
     }
 
     public void AddVideoClip(UploadData upload)
     {
-        var assetSlot = Instantiate(assetSlotPrefab, container.transform);
-        assetSlot.CreateVideoClipSlot(upload.fileName, upload.url);
+        var assetSlot = GetSlot(upload);
+        assetSlot.CreateVideoClipSlot(upload.Filename, upload.Url);
     }
 
+    private IEnumerator CreateSpriteSlot(UploadData uploadData)
+    {
+        yield return StartCoroutine(DownloadSprite(uploadData.Url, sprite =>
+        {
+            var assetSlot = GetSlot(uploadData);
+            assetSlot.CreateSpriteSlot(uploadData.Filename, sprite);
+        }));
+    }
+    
     private IEnumerator DownloadSprite(string url, Action<Sprite> callback)
     {
         using UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
@@ -50,9 +56,33 @@ public class AssetGallery : MonoBehaviour
         AudioClip audioClip = DownloadHandlerAudioClip.GetContent(request);
         callback(audioClip);
     }
-    
-    private void Awake()
+
+    private AssetSlot GetSlot(UploadData uploadData)
     {
-        Instance = this;
+        AssetSlot slot = Instantiate(assetSlotPrefab, container.transform);
+        slot.Configure(uploadData);
+        slot.OnDelete += HandleDelete;
+        return slot;
+    }
+
+    private static void HandleDelete(UploadData uploadData)
+    {
+        ApiUtils.DeleteConfig(ApiUtils.GALLERY_ROUTE, uploadData);
+    }
+
+    private void Start()
+    {
+        StartCoroutine(ApiUtils.DownloadConfigs(ApiUtils.GALLERY_ROUTE, gallery =>
+        {
+            if (gallery != null)
+            {
+                Debug.Log(JsonUtility.ToJson(gallery));
+            }
+            return;
+            foreach (var uploadData in gallery.UploadDatas)
+            {
+                StartCoroutine(CreateSpriteSlot(uploadData));
+            }
+        }));
     }
 }
