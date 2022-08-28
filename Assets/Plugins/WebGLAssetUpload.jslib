@@ -56,7 +56,8 @@ var WebGLAssetUpload = {
                 var formData = new FormData();
                 formData.append("file", file);
                 formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
+                formData.append("folder", FOLDER_NAME);
+                
                 axios.post(uploadUrl, formData, { 
                     // Report upload progress to Unity.
                     onUploadProgress: function(progressEvent) {
@@ -67,7 +68,11 @@ var WebGLAssetUpload = {
                 // Send URL and file name as JSON to Unity upon a successful upload response.
                 .then(function(response) 
                 {
-                    var responseObject = {fileName: response.data.original_filename, url: response.data.secure_url};
+                    var responseObject = 
+                        {
+                            Filename: response.data.original_filename, 
+                            Url: response.data.secure_url
+                        };
                     SendMessage(gameObjectName, ASSET_UPLOADED_METHOD, JSON.stringify(responseObject));
                 })
                 // Report upload error to Unity.

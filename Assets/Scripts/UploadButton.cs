@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using NCuid;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -21,6 +22,14 @@ public class UploadData
     public string Id;
     public string Filename;
     public string Url;
+    
+    public UploadData()
+    {
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = Cuid.Generate();
+        }
+    }
 }
 
 public class ProgressData
