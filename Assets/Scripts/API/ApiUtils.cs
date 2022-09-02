@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Data.Common;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -27,6 +28,7 @@ namespace Ebla.API
                 yield break;
             }
 
+            Debug.Log(request.downloadHandler.text);
             var configs = JsonUtility.FromJson<Gallery>(request.downloadHandler.text);
             if (configs != null)
             {
@@ -107,6 +109,7 @@ namespace Ebla.API
         private static void SetDefaultHeaders(UnityWebRequest request)
         {
             request.SetRequestHeader(CONTENT_TYPE_HEADER_KEY, JSON_HEADER_VALUE);
+            request.SetRequestHeader("Access-Control-Allow-Headers", "Origin, X-Requested, Content-Type, Accept Authorization");
         }
 
         private static void SetAcceptHeader(UnityWebRequest request)

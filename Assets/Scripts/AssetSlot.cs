@@ -16,6 +16,7 @@ public class AssetSlot : MonoBehaviour
     public void Delete()
     {
         OnDelete?.Invoke(uploadData);
+        Destroy(gameObject);
     }
     
     public void Configure(UploadData data)
