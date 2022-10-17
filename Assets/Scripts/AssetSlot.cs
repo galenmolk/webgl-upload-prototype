@@ -1,14 +1,29 @@
+using System;
 using TMPro;
 using UnityEngine;
 
 public class AssetSlot : MonoBehaviour
 {
+    public event Action<UploadData> OnDelete;
+    
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private TMP_Text fileNameText;
     
     private Sprite sprite;
     private string videoUrl;
+    private UploadData uploadData;
 
+    public void Delete()
+    {
+        OnDelete?.Invoke(uploadData);
+        Destroy(gameObject);
+    }
+    
+    public void Configure(UploadData data)
+    {
+        uploadData = data;
+    }
+    
     public void CreateSpriteSlot(string fileName, Sprite _sprite)
     {
         fileNameText.text = fileName;
@@ -51,5 +66,11 @@ public class AssetSlot : MonoBehaviour
             audioSource.Stop();
         else
             audioSource.Play();
+    }
+    
+    
+    private void OnDestroy()
+    {
+        OnDelete = null;
     }
 }

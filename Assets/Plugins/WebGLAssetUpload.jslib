@@ -1,12 +1,13 @@
 var WebGLAssetUpload = {
 
     UploadAsset: function(gameObjectNamePtr, uploadUrlPtr, filterPtr, maxBytesPtr, isMultiSelect) {
-        var CLOUDINARY_UPLOAD_PRESET = "asset_preset";
-        var PROGRESS_CHANGED_METHOD = "UploadProgressChanged";
-        var ASSET_UPLOADED_METHOD = "AssetUploaded";
-        var UPLOAD_FAILED_METHOD = "UploadFailed";
-        var FILE_TOO_BIG_METHOD = "FileTooBig";
-
+        const CLOUDINARY_UPLOAD_PRESET = "asset_preset";
+        const PROGRESS_CHANGED_METHOD = "UploadProgressChanged";
+        const ASSET_UPLOADED_METHOD = "AssetUploaded";
+        const UPLOAD_FAILED_METHOD = "UploadFailed";
+        const FILE_TOO_BIG_METHOD = "FileTooBig";
+        const FOLDER_NAME = 'WormTomb/Gallery';
+        
         gameObjectName = Pointer_stringify(gameObjectNamePtr);
         uploadUrl = Pointer_stringify(uploadUrlPtr);
         filter = Pointer_stringify(filterPtr);
@@ -55,7 +56,8 @@ var WebGLAssetUpload = {
                 var formData = new FormData();
                 formData.append("file", file);
                 formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
+                formData.append("folder", FOLDER_NAME);
+                
                 axios.post(uploadUrl, formData, { 
                     // Report upload progress to Unity.
                     onUploadProgress: function(progressEvent) {
@@ -66,7 +68,11 @@ var WebGLAssetUpload = {
                 // Send URL and file name as JSON to Unity upon a successful upload response.
                 .then(function(response) 
                 {
-                    var responseObject = {fileName: response.data.original_filename, url: response.data.secure_url};
+                    var responseObject = 
+                        {
+                            Filename: response.data.original_filename, 
+                            Url: response.data.secure_url
+                        };
                     SendMessage(gameObjectName, ASSET_UPLOADED_METHOD, JSON.stringify(responseObject));
                 })
                 // Report upload error to Unity.

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using NCuid;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,10 +12,24 @@ public enum AssetUploadType
     Video
 }
 
+public class Gallery
+{
+    public List<UploadData> UploadDatas;
+}
+
 public class UploadData
 {
-    public string fileName;
-    public string url;
+    public string Id;
+    public string Filename;
+    public string Url;
+    
+    public UploadData()
+    {
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            Id = Cuid.Generate();
+        }
+    }
 }
 
 public class ProgressData
@@ -67,7 +83,7 @@ public class UploadButton : MonoBehaviour, IPointerDownHandler
         switch (assetUploadType)
         {
             case AssetUploadType.Image:
-                StartCoroutine(AssetGallery.Instance.AddSprite(upload));
+                AssetGallery.Instance.AddSprite(upload);
                 break;
             case AssetUploadType.Audio:
                 StartCoroutine(AssetGallery.Instance.AddAudioClip(upload));
